@@ -81,6 +81,8 @@ function _M:call()
   ngx.log(ngx.DEBUG, 'SQL: ', sql)
   local res, err, errcode, sqlstate = db:query(sql)
 
+  db:set_keepalive()
+
   if not res then
     ngx.log(ngx.WARN, "bad result: ", err, ": ", errcode, ": ", sqlstate, ".")
     return
