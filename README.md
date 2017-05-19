@@ -15,11 +15,11 @@ apicast-cli start -e development
 Build process uses s2i to package docker image.
 
 ```shell
-s2i build . quay.io/3scale/s2i-openresty-centos7:1.11.2.3-3  cors-proxy-app
+s2i build . quay.io/3scale/s2i-openresty-centos7:1.11.2.3-4  cors-proxy-app
 ```
 
 You can deploy app to OpenShift by running:
 
 ```shell
-oc new-app quay.io/3scale/s2i-openresty-centos7:1.11.2.3-3~https://github.com/3scale/cors-proxy.git
+oc new-app quay.io/3scale/s2i-openresty-centos7:1.11.2.3-4~https://github.com/3scale/cors-proxy.git
 ```
