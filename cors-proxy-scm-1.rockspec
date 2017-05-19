@@ -20,7 +20,9 @@ build = {
    modules = {
       ["cors-proxy.config.development"] = "config/development.lua",
       ["cors-proxy.config.production"] = "config/production.lua",
-      ["cors-proxy.init"] = "src/cors-proxy/init.lua"
+      ["cors-proxy.init"] = "src/cors-proxy/init.lua",
+      ["cors-proxy.whitelist"] = "src/cors-proxy/whitelist.lua",
+      ["cors-proxy.balancer_blacklist"] = "src/cors-proxy/balancer_blacklist.lua",
    },
    install = {}
 }
