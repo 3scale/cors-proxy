@@ -21,5 +21,5 @@ s2i build . quay.io/3scale/s2i-openresty-centos7:1.11.2.3-3  cors-proxy-app
 You can deploy app to OpenShift by running:
 
 ```shell
-oc new-app quay.io/3scale/s2i-openresty-centos7:1.11.2.3-3~https://github.com/[yourname]/cors-proxy.git
+oc new-app quay.io/3scale/s2i-openresty-centos7:1.11.2.3-3~https://github.com/3scale/cors-proxy.git
 ```
