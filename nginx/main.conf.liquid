@@ -24,6 +24,14 @@ http {
     -- custom logging
   }
 
+  upstream upstream {
+    server 0.0.0.1:1;
+
+    balancer_by_lua_block { require('cors-proxy'):upstream() }
+
+    keepalive 1024;
+  }
+
   server {
     listen {{ port }} default_server;
 
