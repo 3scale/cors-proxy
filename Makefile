@@ -1,5 +1,5 @@
 test: build
-	docker run --rm cors-proxy-app
+	docker run --rm cors-proxy-app /tmp/scripts/run --daemon
 
 build: rock
 	s2i build . quay.io/3scale/s2i-openresty-centos7:1.11.2.3-4 cors-proxy-app
