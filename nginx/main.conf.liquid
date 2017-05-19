@@ -1,0 +1,40 @@
+daemon {{ daemon }};
+master_process {{ master_process }};
+worker_processes {{ worker_processes }};
+
+events {
+  worker_connections 1024;
+}
+
+http {
+  lua_code_cache {{ lua_code_cache }};
+
+  lua_package_path "{{ lua_path }};;";
+  lua_package_cpath "{{ lua_cpath }};;";
+
+  init_by_lua_block {
+    -- code to be executed before forking workers
+  }
+
+  init_worker_by_lua_block {
+    -- code to be executed after forking workers
+  }
+
+  log_by_lua_block {
+    -- custom logging
+  }
+
+  server {
+    listen {{ port }} default_server;
+
+    location / {
+      access_by_lua_block {
+        -- verify the request
+      }
+
+      content_by_lua_block {
+        -- generate some response
+      }
+    }
+  }
+}
