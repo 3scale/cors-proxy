@@ -1,6 +1,7 @@
 local balancer = require('cors-proxy.balancer_blacklist')
-local resty_resovler = require('resty.resolver')
+local resty_resolver = require('resty.resolver')
 local resty_url = require('resty.url')
+local whitelist = require('cors-proxy.whitelist')
 
 local METHODS = {
   GET = ngx.HTTP_GET,
@@ -22,8 +23,9 @@ local METHODS = {
 
 local _M = {
   _VERSION = '0.1',
-  balancer = balancer.new(),
-  resolver = resty_resovler
+  balancer = balancer:new(),
+  whitelist = whitelist:new(),
+  resolver = resty_resolver
 }
 
 function _M:init()
@@ -76,7 +78,13 @@ function _M:access()
   local resolver = self.resolver
   local upstream = ngx.ctx.upstream
 
-  ngx.ctx.proxy = resolver:instance():get_servers(upstream.server, { port = upstream.port })
+  local whitelist = self.whitelist
+
+  if whitelist() then
+    ngx.ctx.proxy = resolver:instance():get_servers(upstream.server, { port = upstream.port })
+  else
+    ngx.exit(403)
+  end
 end
 
 function _M:upstream()

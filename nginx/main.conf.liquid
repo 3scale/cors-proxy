@@ -2,11 +2,15 @@ daemon {{ daemon }};
 master_process {{ master_process }};
 worker_processes {{ worker_processes }};
 
+env DATABASE_URL;
+
 events {
   worker_connections 1024;
 }
 
 http {
+  lua_shared_dict whitelist 10m;
+
   lua_code_cache {{ lua_code_cache }};
 
   lua_package_path "{{ lua_path }};;";
