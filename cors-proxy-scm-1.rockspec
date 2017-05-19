@@ -12,7 +12,8 @@ description = {
 }
 dependencies = {
    "apicast-cli == scm-1",
-   "apicast == scm-1"
+   "apicast == scm-1",
+   "lua-resty-iputils",
 }
 build = {
    type = "builtin",
