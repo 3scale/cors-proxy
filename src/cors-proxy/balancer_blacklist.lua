@@ -50,7 +50,7 @@ end
 
 function _M:call()
   local balancer = self.balancer
-  local servers = ngx.ctx.upstream
+  local servers = ngx.ctx[ngx.var.proxy_host] -- context with name of the upstream
 
   if not servers then
     return nil, 'not resolved'

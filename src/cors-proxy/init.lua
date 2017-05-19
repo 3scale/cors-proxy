@@ -41,16 +41,11 @@ function _M:init()
   resolver.init()
 end
 
-function _M:access()
-  -- TODO: verify domain whitelist
-end
-
 local api_docs_headers = {
   'X-Apidocs-Path', 'X-Apidocs-Url', 'X-Apidocs-Query', 'X-Apidocs-Method'
 }
-function _M:rewrite()
-  local resolver = self.resolver
 
+function _M:rewrite()
   local url = resty_url.split(ngx.var.http_x_apidocs_url)
   local upstream = {
     server = url[4],
@@ -61,7 +56,7 @@ function _M:rewrite()
     method = METHODS[ngx.var.http_x_apidocs_method],
   }
 
-  ngx.ctx.upstream = resolver:instance():get_servers(upstream.server, { port = upstream.port })
+  ngx.ctx.upstream = upstream
   ngx.req.set_header('Host', upstream.host)
   ngx.var.proxy_scheme = url[1]
 
@@ -75,6 +70,13 @@ function _M:rewrite()
 
   ngx.req.set_uri(upstream.path)
   ngx.req.set_uri_args(upstream.args)
+end
+
+function _M:access()
+  local resolver = self.resolver
+  local upstream = ngx.ctx.upstream
+
+  ngx.ctx.proxy = resolver:instance():get_servers(upstream.server, { port = upstream.port })
 end
 
 function _M:upstream()
