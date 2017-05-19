@@ -25,15 +25,6 @@ for _,cidrs in pairs(ipv4) do
   end
 end
 
-
-function _M.new()
-  return setmetatable({}, mt)
-end
-
-function _M:init()
-  iputils.enable_lrucache()
-end
-
 local balancer_with_blacklist = resty_balancer.new(function(peers)
   local peer, i = default_balancer(peers)
 
@@ -49,10 +40,23 @@ local balancer_with_blacklist = resty_balancer.new(function(peers)
   end
 end)
 
-function _M:balancer()
-  local balancer = balancer_with_blacklist
-  local host = ngx.var.proxy_host -- NYI: return to lower frame
-  local peers = balancer:peers(ngx.ctx[host])
+function _M.new()
+  return setmetatable({ balancer = balancer_with_blacklist }, mt)
+end
+
+function _M:init()
+  iputils.enable_lrucache()
+end
+
+function _M:call()
+  local balancer = self.balancer
+  local servers = ngx.ctx.upstream
+
+  if not servers then
+    return nil, 'not resolved'
+  end
+
+  local peers = balancer:peers(servers)
 
   local peer, err = balancer:set_peer(peers)
 
