@@ -1,9 +1,9 @@
-local cors-proxy = require("cors-proxy")
+local cors_proxy = require("cors-proxy")
 
 describe('double-spec', function()
 
   it('exists', function()
-    assert.truthy(cors-proxy)
+    assert.truthy(cors_proxy)
   end)
 
   it('runs inside nginx', function ()
