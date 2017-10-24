@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: BuildConfig
+metadata:
+  name: cors-proxy
+  labels:
+    app: cors-proxy
+spec:
+  output:
+    to:
+      kind: ImageStreamTag
+      name: cors-proxy:latest
+  source:
+    git:
+      uri: https://github.com/3scale/cors-proxy.git
+      ref: "master"
+    type: Git
+  strategy:
+    sourceStrategy:
+      forcePull: true
+      from:
+        kind: ImageStreamTag
+        name: s2i-openresty-centos7:builder
+      runtimeImage:
+        kind: ImageStreamTag
+        name: s2i-openresty-centos7:runtime
+    type: Source
+  triggers:
+  - type: ConfigChange
+  - type: ImageChange
