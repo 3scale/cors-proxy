@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ImageStream
+metadata:
+  name: s2i-openresty-centos7
+  labels:
+    app: cors-proxy 
+spec:
+  tags:
+  - from:
+      kind: DockerImage
+      name: quay.io/3scale/s2i-openresty-centos7:1.11.2.3-4
+    name: builder
+  - from:
+      kind: DockerImage
+      name: quay.io/3scale/s2i-openresty-centos7:1.11.2.3-4-runtime
+    name: runtime
