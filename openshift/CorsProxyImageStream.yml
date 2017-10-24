@@ -4,4 +4,11 @@ metadata:
   name: cors-proxy 
   labels:
     app: cors-proxy 
-spec: {}
+spec:
+  tags:
+  - name: latest
+    annotations:
+      openshift.io/display-name: Cors Proxy (latest) 
+    from:
+      kind: ImageStreamTag
+      name: latest
