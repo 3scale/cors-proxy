@@ -1,5 +1,6 @@
 luarocks {
   module { 'apicast-cli', '== scm-1' },
 
+  module { 'luarocks' },
   rockspec 'cors-proxy-scm-1.rockspec',
 }
