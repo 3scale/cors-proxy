@@ -35,9 +35,14 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: system-database-url
-                  key: password
-          resources: {}
-          livenessProbe: {}
+                  key: DSN
+          resources:
+            limits:
+              cpu: '1'
+              memory: 512Mi
+            requests:
+              cpu: 250m
+              memory: 250M
           readinessProbe:
             tcpSocket:
               port: 8080

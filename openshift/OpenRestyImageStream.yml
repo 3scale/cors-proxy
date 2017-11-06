@@ -8,9 +8,9 @@ spec:
   tags:
   - from:
       kind: DockerImage
-      name: quay.io/3scale/s2i-openresty-centos7:1.11.2.3-4
+      name: quay.io/3scale/s2i-openresty-centos7:1.11.2.5-1-rover2
     name: builder
   - from:
       kind: DockerImage
-      name: quay.io/3scale/s2i-openresty-centos7:1.11.2.3-4-runtime
+      name: quay.io/3scale/s2i-openresty-centos7:1.11.2.5-1-rover2-runtime
     name: runtime

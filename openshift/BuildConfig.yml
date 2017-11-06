@@ -12,7 +12,7 @@ spec:
   source:
     git:
       uri: https://github.com/3scale/cors-proxy.git
-      ref: "master"
+      ref: "openshift-template"
     type: Git
   strategy:
     sourceStrategy:
