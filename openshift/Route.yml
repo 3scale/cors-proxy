@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: "cors-proxy-route"
+objects:
+- apiVersion: v1
+  kind: Route
+  metadata:
+    name: cors-proxy
+    labels:
+      app: cors-proxy
+  spec:
+    host: ${ENVIRONMENT}cors-proxy.${WILDCARD_DOMAIN}
+    to:
+      kind: Service
+      name: cors-proxy
+    port:
+      targetPort: 8080-tcp
+    tls:
+      termination: edge
+      insecureEdgeTerminationPolicy: Allow
+
+parameters:
+- name: WILDCARD_DOMAIN
+  description: The Wildcard Domain for the Openshift Cluster
+  required: true
+- name: ENVIRONMENT
+  description: Environment name
+  value: ""
+  required: false
