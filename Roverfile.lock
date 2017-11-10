@@ -23,3 +23,4 @@ mediator_lua 1.1.2-0
 penlight-ffi scm-1
 router 2.1-0
 say 1.3-1
+nginx-lua-prometheus 0.1-20170610

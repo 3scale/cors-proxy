@@ -7,7 +7,7 @@ metadata:
     app: cors-proxy
 spec:
   ports:
-    - name: 8080-tcp
+    - name: http-cors-proxy
       protocol: TCP
       port: 8080
       targetPort: 8080

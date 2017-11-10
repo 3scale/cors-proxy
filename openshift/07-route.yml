@@ -15,7 +15,7 @@ objects:
       kind: Service
       name: cors-proxy
     port:
-      targetPort: 8080-tcp
+      targetPort: http-cors-proxy
     tls:
       termination: edge
       insecureEdgeTerminationPolicy: Allow
