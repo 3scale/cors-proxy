@@ -57,9 +57,11 @@ function _M:connect()
 
   if not ok then
     ngx.log(ngx.ERR, "failed to connect: ", err, ": ", errcode, " ", sqlstate)
+    database_connection:set(0, {"state"})
     return nil, 'failed to connect'
   end
 
+  database_connection:set(1, {"state"})
   return db
 end
 

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ImageStream
+metadata:
+  name: cors-proxy 
+  labels:
+    app: cors-proxy 
+spec:
+  tags:
+  - name: latest
+    annotations:
+      openshift.io/display-name: Cors Proxy (latest) 
+    from:
+      kind: ImageStreamTag
+      name: latest

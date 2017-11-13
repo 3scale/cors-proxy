@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: "cors-proxy-route"
+objects:
+- apiVersion: v1
+  kind: Route
+  metadata:
+    name: cors-proxy
+    labels:
+      app: cors-proxy
+  spec:
+    host: ${HOST}
+    to:
+      kind: Service
+      name: cors-proxy
+    port:
+      targetPort: http-cors-proxy
+    tls:
+      termination: edge
+      insecureEdgeTerminationPolicy: Allow
+
+parameters:
+- name: HOST
+  description: Cors Proxy Route Host
+  required: true

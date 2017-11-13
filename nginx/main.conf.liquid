@@ -10,6 +10,7 @@ events {
 
 http {
   lua_shared_dict whitelist 10m;
+  lua_shared_dict prometheus_metrics 10M;
 
   lua_code_cache {{ lua_code_cache }};
 
@@ -17,7 +18,12 @@ http {
   lua_package_cpath "{{ lua_cpath }};;";
 
   init_by_lua_block {
+    prometheus = require('nginx.prometheus').init("prometheus_metrics")
     require('cors-proxy'):init()
+
+    metric_connections      = prometheus:gauge("nginx_http_connections", "Number of HTTP connections", {"state"})
+    database_connection     = prometheus:gauge("cors_proxy_database_connection", "Database Connection State", {"state"})
+
   }
 
   init_worker_by_lua_block {
@@ -55,5 +61,43 @@ http {
       proxy_set_header Connection "";
       proxy_set_header Host "$host";
     }
+  }
+
+  server {
+    listen 9145;
+    location /metrics {
+
+
+      content_by_lua '
+        local response = ngx.location.capture "/nginx_status"
+        local select = select
+        local find = string.find
+
+        if response.status ~= 200 then
+          ngx.status = ngx.HTTP_SERVICE_UNAVAILABLE
+          ngx.log(ngx.ERR, "Nginx Status Module is not responding and failing with the Status: ", response.status)
+          ngx.exit(ngx.status)
+        end
+
+        local accepted, handled, total = select(3, find(response.body, [[accepts handled requests\n (%d*) (%d*) (%d*)]]))
+
+        if ngx.var.connections_active ~= nil then
+          metric_connections:set(ngx.var.connections_reading, {"reading"})
+          metric_connections:set(ngx.var.connections_waiting, {"waiting"})
+          metric_connections:set(ngx.var.connections_writing, {"writing"})
+          metric_connections:set(accepted, {"accepted"})
+          metric_connections:set(handled, {"handled"})
+          metric_connections:set(total, {"total"})
+        end
+        prometheus:collect()
+      ';
+    }
+
+    location /nginx_status {
+      internal;
+      access_log off;
+      stub_status;
+    }
+
   }
 }
