@@ -10,7 +10,7 @@ objects:
     labels:
       app: cors-proxy
   spec:
-    host: ${ENVIRONMENT}cors-proxy.${WILDCARD_DOMAIN}
+    host: ${HOST}
     to:
       kind: Service
       name: cors-proxy
@@ -21,10 +21,6 @@ objects:
       insecureEdgeTerminationPolicy: Allow
 
 parameters:
-- name: WILDCARD_DOMAIN
-  description: The Wildcard Domain for the Openshift Cluster
+- name: HOST
+  description: Cors Proxy Route Host
   required: true
-- name: ENVIRONMENT
-  description: Environment name
-  value: ""
-  required: false

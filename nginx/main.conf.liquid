@@ -18,8 +18,7 @@ http {
   lua_package_cpath "{{ lua_cpath }};;";
 
   init_by_lua_block {
-    local prometheus_metrics = ngx.shared.prometheus_metrics
-    prometheus = require("prometheus").init("prometheus_metrics")
+    prometheus = require('nginx.prometheus').init("prometheus_metrics")
     require('cors-proxy'):init()
 
     metric_connections      = prometheus:gauge("nginx_http_connections", "Number of HTTP connections", {"state"})

@@ -4,7 +4,6 @@ local resty_url = require('resty.url')
 local resty_resolver = require('resty.resolver')
 local round_robin = require('resty.balancer.round_robin')
 local lrucache = require('resty.lrucache')
-local prometheus = require("prometheus").init("prometheus_metrics")
 
 local database_url = resty_env.get('DATABASE_URL')
 local url = resty_url.split(database_url, 'mysql')
