@@ -78,7 +78,7 @@ function _M:call()
     return true
   end
 
-  local quoted_name = ngx.quote_sql_str("http_://" .. name .. "%")
+  local quoted_name = ngx.quote_sql_str("http%://" .. name .. "%")
   local sql = ("SELECT DISTINCT base_path FROM `api_docs_services` WHERE `base_path` LIKE %s;"):format(quoted_name)
   ngx.log(ngx.DEBUG, 'SQL: ', sql)
   local res, err, errcode, sqlstate = db:query(sql)
