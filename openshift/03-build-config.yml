@@ -42,4 +42,4 @@ parameters:
   description: Secret for Github Webhook.
   generate: expression
   from: "[a-z0-9]{12}"
-  required: true
+  required: false
