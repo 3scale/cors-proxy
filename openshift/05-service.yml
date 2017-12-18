@@ -1,16 +1,18 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: cors-proxy
   labels:
     app: cors-proxy
+  name: cors-proxy
 spec:
+  clusterIP:
   ports:
-    - name: http-cors-proxy
-      protocol: TCP
-      port: 8080
-      targetPort: 8080
+  - name: http-cors-proxy
+    nodePort: 32010
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
   selector:
     app: cors-proxy
-  type: ClusterIP
   sessionAffinity: None
+  type: NodePort
