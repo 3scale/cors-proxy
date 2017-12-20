@@ -9,6 +9,9 @@ events {
 }
 
 http {
+
+  underscores_in_headers on;
+
   lua_shared_dict whitelist 10m;
   lua_shared_dict prometheus_metrics 10M;
 
