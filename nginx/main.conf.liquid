@@ -49,6 +49,7 @@ http {
     listen {{ port }} default_server;
 
     set_by_lua_block $proxy_scheme { return ngx.var.scheme }
+    set $proxy_path '';
 
     location / {
       access_by_lua_block {
@@ -60,7 +61,7 @@ http {
       }
 
       proxy_http_version 1.1;
-      proxy_pass $proxy_scheme://proxy;
+      proxy_pass $proxy_scheme://proxy$proxy_path;
       proxy_set_header Connection "";
       proxy_set_header Host "$host";
     }
