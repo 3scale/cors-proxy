@@ -70,7 +70,7 @@ function _M:rewrite()
     ngx.req.set_method(upstream.method)
   end
 
-  ngx.req.set_uri(upstream.path)
+  ngx.var.proxy_path = upstream.path
   ngx.req.set_uri_args(upstream.args)
 end
 
