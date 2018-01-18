@@ -5,8 +5,14 @@ local resty_resolver = require('resty.resolver')
 local round_robin = require('resty.balancer.round_robin')
 local lrucache = require('resty.lrucache')
 
+local disabled = {}
 local database_url = resty_env.get('DATABASE_URL')
 local url = resty_url.split(database_url, 'mysql')
+
+if not database_url then
+  url = disabled
+  ngx.log(ngx.WARN, 'Whitelist from MySQL database not active.')
+end
 
 if not url then
   ngx.log(ngx.WARN, 'DATABASE_URL does not look like MySQL connection')
@@ -66,6 +72,8 @@ function _M:connect()
 end
 
 function _M:call()
+  if url == disabled then return true end
+
   local db = assert(self:connect())
 
   local name = ngx.unescape_uri(ngx.var.host)
