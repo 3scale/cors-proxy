@@ -47,60 +47,31 @@ local api_docs_headers = {
   'X-Apidocs-Path', 'X-Apidocs-Url', 'X-Apidocs-Query', 'X-Apidocs-Method'
 }
 
-local function set_cors_headers()
-  local origin = ngx.var.http_origin
-
-  if not origin then return end
-
-  ngx.header['Access-Control-Allow-Headers'] = ngx.var.http_access_control_request_headers
-  ngx.header['Access-Control-Allow-Methods'] = ngx.var.http_access_control_request_method
-  ngx.header['Access-Control-Allow-Origin'] = origin
-  ngx.header['Access-Control-Allow-Credentials'] = 'true'
-end
-
-local function cors_preflight_response()
-  set_cors_headers()
-  ngx.status = 204
-  ngx.exit(ngx.status)
-end
-
-local function cors_preflight()
-  return (
-    ngx.req.get_method() == 'OPTIONS' and
-    ngx.var.http_origin and
-    ngx.var.http_access_control_request_method
-  )
-end
-
 function _M:rewrite()
-  if cors_preflight() then
-    return cors_preflight_response()
-  else
-    local url = resty_url.split(ngx.var.http_x_apidocs_url)
-    local upstream = {
-      server = url[4],
-      port = url[5] or resty_url.default_port(url[1]),
-      host = url[4],
-      path = ngx.var.http_x_apidocs_path or ngx.var.uri,
-      args = ngx.var.http_x_apidocs_query or ngx.var.args or '',
-      method = METHODS[ngx.var.http_x_apidocs_method],
-    }
-  
-    ngx.ctx.upstream = upstream
-    ngx.req.set_header('Host', upstream.host)
-    ngx.var.proxy_scheme = url[1]
-  
-    for i=1,#api_docs_headers do
-      ngx.req.clear_header(api_docs_headers[i])
-    end
-  
-    if upstream.method then
-      ngx.req.set_method(upstream.method)
-    end
-  
-    ngx.req.set_uri(upstream.path)
-    ngx.req.set_uri_args(upstream.args)
+  local url = resty_url.split(ngx.var.http_x_apidocs_url)
+  local upstream = {
+    server = url[4],
+    port = url[5] or resty_url.default_port(url[1]),
+    host = url[4],
+    path = ngx.var.http_x_apidocs_path or ngx.var.uri,
+    args = ngx.var.http_x_apidocs_query or '',
+    method = METHODS[ngx.var.http_x_apidocs_method],
+  }
+
+  ngx.ctx.upstream = upstream
+  ngx.req.set_header('Host', upstream.host)
+  ngx.var.proxy_scheme = url[1]
+
+  for i=1,#api_docs_headers do
+    ngx.req.clear_header(api_docs_headers[i])
   end
+
+  if upstream.method then
+    ngx.req.set_method(upstream.method)
+  end
+
+  ngx.var.proxy_path = upstream.path
+  ngx.req.set_uri_args(upstream.args)
 end
 
 function _M:access()
