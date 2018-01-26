@@ -1,0 +1,22 @@
+---
+engines:
+  luacheck:
+    enabled: true
+    channel: beta
+    checks:
+      LC631:
+        enabled: false
+  shellcheck:
+    enabled: true
+    checks:
+      SC1008:
+        enabled: false
+exclude_paths:
+  - local
+  - node_modules
+  - lua_modules
+ratings:
+  paths:
+  - "**.sh"
+  - "**.lua"
+  - "**/bin/*"
