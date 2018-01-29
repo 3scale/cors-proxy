@@ -61,6 +61,9 @@ http {
       }
 
       proxy_http_version 1.1;
+      proxy_ssl_server_name on;
+      proxy_ssl_name $http_host;
+      proxy_ssl_verify_depth 5;
       proxy_pass $proxy_scheme://proxy$proxy_path$is_args$args;
       proxy_set_header Connection "";
       proxy_set_header Host "$host";
