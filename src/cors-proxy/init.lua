@@ -103,6 +103,10 @@ function _M:rewrite()
   end
 end
 
+function _M:header_filter()
+  set_cors_headers()
+end
+
 function _M:access()
   local resolver = self.resolver
   local upstream = ngx.ctx.upstream

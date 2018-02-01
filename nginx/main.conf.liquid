@@ -52,12 +52,17 @@ http {
     set $proxy_path '';
 
     location / {
+
+      rewrite_by_lua_block {
+        require('cors-proxy'):rewrite()
+      }
+      
       access_by_lua_block {
         require('cors-proxy'):access()
       }
 
-      rewrite_by_lua_block {
-        require('cors-proxy'):rewrite()
+      header_filter_by_lua_block {
+        require('cors-proxy'):header_filter()
       }
 
       proxy_http_version 1.1;
