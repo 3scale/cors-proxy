@@ -90,6 +90,11 @@ function _M:call()
   local sql = ("SELECT DISTINCT base_path FROM `api_docs_services` WHERE `base_path` LIKE %s;"):format(quoted_name)
   ngx.log(ngx.DEBUG, 'SQL: ', sql)
   local res, err, errcode, sqlstate = db:query(sql)
+  
+  ngx.log(ngx.WARN, 'DANI '..require('inspect').inspect(res)) 
+  ngx.log(ngx.WARN, 'DANI err '..require('inspect').inspect(err)) 
+  ngx.log(ngx.WARN, 'DANI errcode '..require('inspect').inspect(errcode)) 
+  ngx.log(ngx.WARN, 'DANI sqlstate'..require('inspect').inspect(sqlstate)) 
 
   db:set_keepalive()
 
