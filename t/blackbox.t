@@ -5,7 +5,7 @@ BEGIN {
 use lib 't';
 use Test::APIcast::Blackbox 'no_plan';
 
-add_block_preprocessor(sub {
+push @Test::Nginx::Util::BlockPreprocessors, sub {
     my $block = shift;
 
     my $Workers = $Test::Nginx::Util::Workers;
@@ -16,6 +16,7 @@ add_block_preprocessor(sub {
     my $PidFile = $Test::Nginx::Util::PidFile;
     my $AccLogFile = $Test::Nginx::Util::AccLogFile;
     my $ServerPort = $Test::Nginx::Util::ServerPort;
+    my $sites_d = $block->sites_d;
 
     my $environment= <<_EOC_;
 return {
@@ -30,11 +31,15 @@ return {
     lua_code_cache = 'on',
     access_log = '$AccLogFile',
     port = '$ServerPort',
-    env = { }
+    env = { },
+    sites_d = [============================[$sites_d]============================],
 }
 _EOC_
+
     $block->set_value("environment",$environment);
-});
+};
+
+$ENV{CORS_PROXY_BALANCER_WHITELIST}='127.0.0.1/32';
 
 repeat_each(1);
 run_tests();
@@ -48,3 +53,22 @@ GET /
 --- response_body
 missing X-ApiDocs-URL header
 --- error_code: 400
+
+
+
+=== TEST 2: proxies to the upstream server
+Responds with the upstream server response.
+--- request
+GET /
+--- more_headers eval
+<<HTTP_HEADERS
+X-ApiDocs-URL: http://test:$ENV{TEST_NGINX_SERVER_PORT}/ignored
+X-ApiDocs-Path: /t
+HTTP_HEADERS
+--- upstream
+location = /t {
+  echo "success!";
+}
+--- response_body
+success!
+--- error_code: 200
