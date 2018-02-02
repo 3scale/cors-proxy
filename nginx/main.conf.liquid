@@ -2,6 +2,14 @@ daemon {{ daemon }};
 master_process {{ master_process }};
 worker_processes {{ worker_processes }};
 
+{% if pid %}
+pid {{ pid }};
+{% endif %}
+
+{% if error_log and log_level %}
+error_log {{ error_log }} {{  log_level }};
+{% endif %}
+
 env DATABASE_URL;
 
 events {
@@ -17,7 +25,7 @@ http {
 
   lua_code_cache {{ lua_code_cache }};
 
-  lua_package_path "{{ lua_path }};;";
+  lua_package_path "{{ lua_path }};./src/?.lua;./src/?/init.lua;;";
   lua_package_cpath "{{ lua_cpath }};;";
 
   init_by_lua_block {

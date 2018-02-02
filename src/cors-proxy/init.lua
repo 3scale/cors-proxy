@@ -77,6 +77,12 @@ function _M:rewrite()
     return cors_preflight_response()
   else
     local url = resty_url.split(ngx.var.http_x_apidocs_url)
+    if not url then
+      ngx.status = ngx.HTTP_BAD_REQUEST
+      ngx.say('missing X-ApiDocs-URL header')
+      ngx.exit(ngx.OK)
+    end
+
     local upstream = {
       server = url[4],
       port = url[5] or resty_url.default_port(url[1]),
