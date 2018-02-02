@@ -40,6 +40,7 @@ _EOC_
 };
 
 $ENV{CORS_PROXY_BALANCER_WHITELIST}='127.0.0.1/32';
+delete $ENV{DATABASE_URL};
 
 repeat_each(1);
 run_tests();

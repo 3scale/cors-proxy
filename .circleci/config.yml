@@ -36,6 +36,7 @@ jobs:
           environment:
             JUNIT_OUTPUT_FILE: tmp/junit/prove.xml
             HARNESS: TAP::Harness::JUnit
+            TEST_NGINX_ERROR_LOG: tmp/prove.log
       - save_cache:
           key: cors-proxy-cpanm-{{ arch }}-{{ checksum "cpanfile" }}
           paths:
@@ -43,5 +44,5 @@ jobs:
       - store_test_results:
           path: tmp/junit
       - store_artifacts:
-          path: tmp/junit
-          destination: junit
+          path: tmp
+          destination: tmp
