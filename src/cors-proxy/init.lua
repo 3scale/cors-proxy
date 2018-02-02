@@ -3,6 +3,8 @@ local resty_resolver = require('resty.resolver')
 local resty_url = require('resty.url')
 local whitelist = require('cors-proxy.whitelist')
 
+local prometheus = require('nginx.prometheus').init("prometheus_metrics")
+
 local METHODS = {
   GET = ngx.HTTP_GET,
   HEAD = ngx.HTTP_HEAD,
@@ -21,11 +23,20 @@ local METHODS = {
   TRACE = ngx.HTTP_TRACE,
 }
 
+local select = select
+local find = string.find
+local tonumber = tonumber
+
 local _M = {
   _VERSION = '0.1',
   balancer = balancer:new(),
   whitelist = whitelist:new(),
   resolver = resty_resolver
+}
+
+local metrics = {
+  http_connections = prometheus:gauge("nginx_http_connections", "Number of HTTP connections", {"state"}),
+  database_connection = prometheus:gauge("cors_proxy_database_connection", "Database Connection State", {"state"}),
 }
 
 function _M:init()
@@ -134,6 +145,28 @@ function _M:upstream()
   end
 
   return balancer:call()
+end
+
+function _M:metrics()
+  local response = ngx.location.capture "/nginx_status"
+
+  if response.status ~= 200 then
+    ngx.status = ngx.HTTP_SERVICE_UNAVAILABLE
+    ngx.log(ngx.ERR, "Nginx Status Module is not responding and failing with the Status: ", response.status)
+    ngx.exit(ngx.status)
+  end
+
+  local accepted, handled, total = select(3, find(response.body, [[accepts handled requests\n (%d*) (%d*) (%d*)]]))
+
+  metrics.http_connections:set(tonumber(ngx.var.connections_reading) or 0, {"reading"})
+  metrics.http_connections:set(tonumber(ngx.var.connections_waiting) or 0, {"waiting"})
+  metrics.http_connections:set(tonumber(ngx.var.connections_writing) or 0, {"writing"})
+  metrics.http_connections:set(tonumber(ngx.var.connections_active) or 0, {"active"})
+  metrics.http_connections:set(accepted or 0, {"accepted"})
+  metrics.http_connections:set(handled or 0, {"handled"})
+  metrics.http_connections:set(total or 0, {"total"})
+
+  prometheus:collect()
 end
 
 return _M
