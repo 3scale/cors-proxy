@@ -79,7 +79,13 @@ http {
   }
 
   server {
-    listen 9145;
+    {% if metrics_port %}
+      listen {{ metrics_port }};
+      server_name metrics;
+    {% else %}
+      listen 9145 default_server;
+    {% endif %}
+
     location /metrics {
 
       content_by_lua_block {
