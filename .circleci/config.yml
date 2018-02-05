@@ -1,0 +1,48 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: quay.io/3scale/s2i-openresty-centos7:1.13.6.1-rover3
+        environment:
+          TEST_NGINX_BINARY: openresty
+          LUA_BIN_PATH: /opt/app-root/bin
+          DATABASE_URL: mysql://root@localhost:3306/circle_test
+      - image: mysql:5.6
+        environment:
+          - MYSQL_ROOT_PASSWORD=
+          - MYSQL_DATABASE=circle_test
+          - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+    working_directory: /opt/app-root/cors-proxy
+    steps:
+      - checkout
+      - run: rm -rf lua_modules
+      - restore_cache:
+          keys:
+            - cors-proxy-rocks-{{ arch }}-{{ checksum "Roverfile.lock" }}
+            - cors-proxy-rocks-{{ arch }}-{{ .Branch }}
+            - cors-proxy-rocks-{{ arch }}-master
+      - run: make dependencies
+      - save_cache:
+          key: cors-proxy-rocks-{{ arch }}-{{ checksum "Roverfile.lock" }}
+          paths:
+            - lua_modules
+      - restore_cache:
+          keys:
+            - cors-proxy-cpanm-{{ arch }}-{{ checksum "cpanfile" }}
+            - cors-proxy-cpanm-{{ arch }}-{{ .Branch }}
+            - cors-proxy-cpanm-{{ arch }}-master
+      - run:
+          command: /usr/libexec/s2i/entrypoint make prove
+          environment:
+            JUNIT_OUTPUT_FILE: tmp/junit/prove.xml
+            HARNESS: TAP::Harness::JUnit
+            TEST_NGINX_ERROR_LOG: tmp/prove.log
+      - save_cache:
+          key: cors-proxy-cpanm-{{ arch }}-{{ checksum "cpanfile" }}
+          paths:
+            - ~/perl5
+      - store_test_results:
+          path: tmp/junit
+      - store_artifacts:
+          path: tmp
+          destination: tmp

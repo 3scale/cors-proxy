@@ -15,6 +15,8 @@ local ipv4 = {
   reserved = { '192.0.0.0/24' }
 }
 
+local whitelist = iputils.parse_cidrs({ os.getenv('CORS_PROXY_BALANCER_WHITELIST') })
+
 local blacklist = {}
 
 for _,cidrs in pairs(ipv4) do
@@ -28,7 +30,18 @@ end
 local balancer_with_blacklist = resty_balancer.new(function(peers)
   local peer, i = default_balancer(peers)
 
+  if not peer then
+    return peer, i
+  end
+
   local ip = peer[1]
+
+  local whitelisted = iputils.ip_in_cidrs(ip, whitelist)
+
+  if whitelisted then
+    return peer, i
+  end
+
   local blacklisted, err = iputils.ip_in_cidrs(ip, blacklist)
 
   if blacklisted then
