@@ -9,6 +9,8 @@ objects:
     name: cors-proxy
     labels:
       app: cors-proxy
+    annotations:
+      haproxy.router.openshift.io/timeout: ${TIMEOUT}s
   spec:
     host: ${HOST}
     to:
@@ -24,3 +26,8 @@ parameters:
 - name: HOST
   description: Cors Proxy Route Host
   required: true
+
+- name: TIMEOUT
+  description: Route timeout to serve requests, in seconds
+  required: true
+  value: "60"
