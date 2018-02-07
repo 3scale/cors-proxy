@@ -41,10 +41,6 @@ http {
     -- code to be executed after forking workers
   }
 
-  log_by_lua_block {
-    require('cors-proxy'):log()
-  }
-
   upstream proxy {
     server 0.0.0.1:1;
 
@@ -58,6 +54,10 @@ http {
 
     set_by_lua_block $proxy_scheme { return ngx.var.scheme }
     set $proxy_path '';
+
+    log_by_lua_block {
+      require('cors-proxy'):log()
+    }
 
     location / {
 
