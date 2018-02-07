@@ -26,6 +26,7 @@ local METHODS = {
 local select = select
 local find = string.find
 local tonumber = tonumber
+local pairs = pairs
 
 local _M = {
   _VERSION = '0.1',
@@ -55,7 +56,8 @@ function _M:init()
 end
 
 local api_docs_headers = {
-  'X-Apidocs-Path', 'X-Apidocs-Url', 'X-Apidocs-Query', 'X-Apidocs-Method'
+  'X-Apidocs-Path', 'X-Apidocs-Url', 'X-Apidocs-Query', 'X-Apidocs-Method',
+  'X-Apidocs-Debug'
 }
 
 local function set_cors_headers()
@@ -83,6 +85,18 @@ local function cors_preflight()
   )
 end
 
+function _M:log()
+  local upstream = ngx.ctx.upstream
+  if not upstream then return end
+
+  if upstream.debug then
+    local h = ngx.req.get_headers(0, true)
+    for k, v in pairs(h) do
+      ngx.log(ngx.DEBUG, "'",k, ': ', v,"'")
+    end
+  end
+end
+
 function _M:rewrite()
   if cors_preflight() then
     return cors_preflight_response()
@@ -101,8 +115,9 @@ function _M:rewrite()
       path = ngx.var.http_x_apidocs_path or ngx.var.uri,
       args = ngx.var.http_x_apidocs_query or ngx.var.args or '',
       method = METHODS[ngx.var.http_x_apidocs_method],
+      debug = ngx.var.http_x_apidocs_debug
     }
-  
+
     ngx.ctx.upstream = upstream
     ngx.req.set_header('Host', upstream.host)
     ngx.var.proxy_scheme = url[1]
