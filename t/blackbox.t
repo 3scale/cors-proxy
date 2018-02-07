@@ -73,3 +73,34 @@ location = /t {
 --- response_body
 success!
 --- error_code: 200
+
+
+
+=== TEST 3: proxy strips X-Forwarded and Forwarded headers
+So upstream servers don't feel like being proxied.
+--- request
+GET /
+--- more_headers eval
+<<HTTP_HEADERS
+X-ApiDocs-URL: http://test:$ENV{TEST_NGINX_SERVER_PORT}/ignored
+X-ApiDocs-Path: /t
+X-Forwarded-For: 10.1.0.1
+X-Forwarded-Host: example.com
+X-Forwarded-Proto: https
+Forwarded: for=10.1.0.1;host=example.com;proto=https
+Api-Key: somekey
+HTTP_HEADERS
+--- upstream
+location = /t {
+  content_by_lua_block {  ngx.print(ngx.req.raw_header()) }
+}
+--- response_body eval
+<<RESPONSE
+GET /t HTTP/1.1\x{0d}
+Host: test\x{0d}
+Api-Key: somekey\x{0d}
+\x{0d}
+RESPONSE
+--- error_code: 200
+--- no_error_log
+[error]

@@ -54,8 +54,10 @@ function _M:init()
   resolver.init()
 end
 
-local api_docs_headers = {
-  'X-Apidocs-Path', 'X-Apidocs-Url', 'X-Apidocs-Query', 'X-Apidocs-Method'
+local http_header_blacklist = {
+  'X-Apidocs-Path', 'X-Apidocs-Url', 'X-Apidocs-Query', 'X-Apidocs-Method',
+  'X-Forwarded-For', 'X-Forwarded-Host', 'X-Forwarded-Proto', 'X-Forwarded-Port',
+  'Forwarded'
 }
 
 local function set_cors_headers()
@@ -107,8 +109,8 @@ function _M:rewrite()
     ngx.req.set_header('Host', upstream.host)
     ngx.var.proxy_scheme = url[1]
   
-    for i=1,#api_docs_headers do
-      ngx.req.clear_header(api_docs_headers[i])
+    for i=1,#http_header_blacklist do
+      ngx.req.clear_header(http_header_blacklist[i])
     end
   
     if upstream.method then
