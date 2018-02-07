@@ -29,6 +29,11 @@ http {
   lua_package_cpath "{{ lua_cpath }};;";
 
   init_by_lua_block {
+    {% for env in env -%}
+      {%- if env.name %}
+      require('resty.env').set([[{{ env.name }}]], [[{{ env.value }}]]);
+      {%- endif -%}
+    {%- endfor %}
     require('cors-proxy'):init()
   }
 

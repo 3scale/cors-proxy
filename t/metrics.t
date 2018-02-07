@@ -8,6 +8,12 @@ use Test::APIcast::Blackbox 'no_plan';
 push @Test::Nginx::Util::BlockPreprocessors, sub {
     my $block = shift;
 
+    my %env = $block->env;
+    my $lua_env = '';
+    for my $key (keys %env) {
+        $lua_env .= " { name = '$key', value = '$env{$key}' } ,";
+    }
+
     my $Workers = $Test::Nginx::Util::Workers;
     my $MasterProcessEnabled = $Test::Nginx::Util::MasterProcessEnabled;
     my $DaemonEnabled = $Test::Nginx::Util::DaemonEnabled;
@@ -32,7 +38,7 @@ return {
     access_log = '$AccLogFile',
     port = '$ServerPort',
     metrics_port = '$ServerPort',
-    env = { },
+    env = { $lua_env },
     sites_d = [============================[$sites_d]============================],
 }
 _EOC_
