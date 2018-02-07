@@ -73,3 +73,26 @@ location = /t {
 --- response_body
 success!
 --- error_code: 200
+
+
+
+=== TEST 3: print upstream request info
+When X-ApiDocs-Debug header is set
+--- request
+GET /
+--- more_headers eval
+<<HTTP_HEADERS
+X-ApiDocs-URL: http://test:$ENV{TEST_NGINX_SERVER_PORT}/ignored
+X-ApiDocs-Path: /t
+X-ApiDocs-Debug: true
+Forwarded: proto=https;
+HTTP_HEADERS
+--- upstream
+location = /t {
+  echo "success!";
+}
+--- response_body
+success!
+--- error_code: 200
+--- error_log
+Forwarded: proto=https;
