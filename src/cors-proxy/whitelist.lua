@@ -5,6 +5,9 @@ local resty_resolver = require('resty.resolver')
 local round_robin = require('resty.balancer.round_robin')
 local lrucache = require('resty.lrucache')
 
+local prometheus = require('cors-proxy.prometheus')
+local database_connection_metric = prometheus:gauge("cors_proxy_database_connection", "Database Connection State", {"state"})
+
 local disabled = {}
 local database_url = resty_env.get('DATABASE_URL')
 local url = resty_url.split(database_url, 'mysql')
@@ -63,11 +66,11 @@ function _M:connect()
 
   if not ok then
     ngx.log(ngx.ERR, "failed to connect: ", err, ": ", errcode, " ", sqlstate)
-    database_connection:set(0, {"state"})
+    database_connection_metric:set(0, {"state"})
     return nil, 'failed to connect'
   end
 
-  database_connection:set(1, {"state"})
+  database_connection_metric:set(1, {"state"})
   return db
 end
 
