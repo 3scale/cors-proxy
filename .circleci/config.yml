@@ -1,8 +1,24 @@
 version: 2
 jobs:
-  build:
+  runtime:
+    machine: true
+    environment:
+      S2I_VERSION: "1.1.7-226afa1"
+    steps:
+      - checkout
+      - run: .circleci/install-s2i.sh ~/bin
+      - run: make test BUILD_TYPE=runtime
+  builder:
+    machine: true
+    environment:
+      S2I_VERSION: "1.1.7-226afa1"
+    steps:
+      - checkout
+      - run: .circleci/install-s2i.sh ~/bin
+      - run: make test BUILD_TYPE=builder
+  test:
     docker:
-      - image: quay.io/3scale/s2i-openresty-centos7:1.13.6.1-rover3
+      - image: quay.io/3scale/s2i-openresty-centos7:1.13.6.1-rover5
         environment:
           TEST_NGINX_BINARY: openresty
           LUA_BIN_PATH: /opt/app-root/bin
@@ -46,3 +62,10 @@ jobs:
       - store_artifacts:
           path: tmp
           destination: tmp
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - builder
+      - runtime
+      - test
