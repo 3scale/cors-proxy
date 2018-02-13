@@ -56,7 +56,6 @@ missing X-ApiDocs-URL header
 --- error_code: 400
 
 
-
 === TEST 2: proxies to the upstream server
 Responds with the upstream server response.
 --- request
@@ -73,7 +72,6 @@ location = /t {
 --- response_body
 success!
 --- error_code: 200
-
 
 
 === TEST 3: proxy strips X-Forwarded and Forwarded headers
@@ -104,3 +102,77 @@ RESPONSE
 --- error_code: 200
 --- no_error_log
 [error]
+
+=== TEST 4: doesn't double-encode the upstream path with special characters
+Proxies to the exact value of the upstream path.
+--- request
+GET /
+--- more_headers eval
+<<HTTP_HEADERS
+X-ApiDocs-Url: http://test:$ENV{TEST_NGINX_SERVER_PORT}/ignored
+X-ApiDocs-Path: /api/this%3Dpath%2Cis%3Balready%3Descaped
+HTTP_HEADERS
+--- upstream
+location / {
+  echo $request_uri;
+}
+--- response_body
+/api/this%3Dpath%2Cis%3Balready%3Descaped
+--- error_code: 200
+
+
+=== TEST 5: Append the query parameters from 'X-ApiDocs-Path'
+Proxies the request with query parameters
+--- request
+GET /
+--- more_headers eval
+<<HTTP_HEADERS
+X-ApiDocs-Url: http://test:$ENV{TEST_NGINX_SERVER_PORT}/ignored
+X-ApiDocs-Path: /t
+X-ApiDocs-Query: q=first&param=second&foo=bar
+HTTP_HEADERS
+--- upstream
+location / {
+  echo $query_string;
+}
+--- response_body
+q=first&param=second&foo=bar
+--- error_code: 200
+
+
+=== TEST 6: Doesn't fail with empty 'X-ApiDocs-Query' header
+Proxies the request with no query parameters
+--- request
+GET /
+--- more_headers eval
+<<HTTP_HEADERS
+X-ApiDocs-Url: http://test:$ENV{TEST_NGINX_SERVER_PORT}/ignored
+X-ApiDocs-Path: /t
+HTTP_HEADERS
+--- upstream
+location / {
+  echo "success!";
+}
+--- response_body
+success!
+--- error_code: 200
+
+
+=== TEST 7: Allows underscores in headers
+Request headers with underscores are not dropped
+--- request
+GET /
+--- more_headers eval
+<<HTTP_HEADERS
+X-ApiDocs-Url: http://test:$ENV{TEST_NGINX_SERVER_PORT}/ignored
+X-ApiDocs-Path: /t
+api_key: abc123
+HTTP_HEADERS
+--- upstream
+location /t {
+  set_by_lua $apikey 'return ngx.var.http_api_key';
+  echo $apikey;
+}
+--- response_body
+abc123
+--- error_code: 200
