@@ -21,6 +21,9 @@ dependencies:
 cpan:
 	cpanm --notest --installdeps ./
 
+start:
+	docker run -p 8080:8080 --rm $(IMAGE_NAME)
+
 dev: SHELL ?= bash
 dev:
 	exec docker run -it --rm \
