@@ -176,3 +176,21 @@ location /t {
 --- response_body
 abc123
 --- error_code: 200
+
+
+=== TEST 8: Drop the original query parameters
+Do not include _=<timestamp> query string when 'X-ApiDocs-Query' is empty
+--- request
+GET /?_=1518541470087
+--- more_headers eval
+<<HTTP_HEADERS
+X-ApiDocs-Url: http://test:$ENV{TEST_NGINX_SERVER_PORT}/ignored
+X-ApiDocs-Path: /t
+HTTP_HEADERS
+--- upstream
+location /t {
+  echo $query_string empty;
+}
+--- response_body
+ empty
+--- error_code: 200
