@@ -200,3 +200,70 @@ location /t {
 --- response_body
  empty
 --- error_code: 200
+
+
+
+=== TEST 9: Reply with 204 to CORS pre-flight
+Returns a 204 status code and CORS response headers
+--- request
+OPTIONS /
+--- more_headers eval
+<<HTTP_HEADERS
+X-ApiDocs-Url: http://test:$ENV{TEST_NGINX_SERVER_PORT}/ignored
+X-ApiDocs-Path: /t
+Origin: example.com
+Access-Control-Request-Method: POST
+HTTP_HEADERS
+--- upstream
+location /t {
+  echo "success!";
+}
+--- response_body
+--- response_headers
+Access-Control-Allow-Methods: POST
+Access-Control-Allow-Origin: example.com
+Access-Control-Allow-Credentials: true
+--- error_code: 204
+
+
+
+=== TEST 10: Proxy OPTIONS request when it's not CORS pre-flight
+Proxies the request to upstream
+--- request
+OPTIONS /
+--- more_headers eval
+<<HTTP_HEADERS
+X-ApiDocs-Url: http://test:$ENV{TEST_NGINX_SERVER_PORT}/ignored
+X-ApiDocs-Path: /t
+Origin: example.com
+HTTP_HEADERS
+--- upstream
+location /t {
+  echo "success!";
+}
+--- response_body
+success!
+--- error_code: 200
+
+
+
+=== TEST 11: Add CORS response headers for normal requests
+Response contains CORS response headers, even when the request is not CORS-preflight
+--- request
+OPTIONS /
+--- more_headers eval
+<<HTTP_HEADERS
+X-ApiDocs-Url: http://test:$ENV{TEST_NGINX_SERVER_PORT}/ignored
+X-ApiDocs-Path: /t
+Origin: example.com
+HTTP_HEADERS
+--- upstream
+location /t {
+  echo "success!";
+}
+--- response_body
+success!
+--- response_headers
+Access-Control-Allow-Origin: example.com
+Access-Control-Allow-Credentials: true
+--- error_code: 200
