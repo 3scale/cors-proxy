@@ -56,6 +56,7 @@ missing X-ApiDocs-URL header
 --- error_code: 400
 
 
+
 === TEST 2: proxies to the upstream server
 Responds with the upstream server response.
 --- request
@@ -72,6 +73,7 @@ location = /t {
 --- response_body
 success!
 --- error_code: 200
+
 
 
 === TEST 3: proxy strips X-Forwarded and Forwarded headers
@@ -121,6 +123,7 @@ location / {
 --- error_code: 200
 
 
+
 === TEST 5: Append the query parameters from 'X-ApiDocs-Path'
 Proxies the request with query parameters
 --- request
@@ -138,6 +141,7 @@ location / {
 --- response_body
 q=first&param=second&foo=bar
 --- error_code: 200
+
 
 
 === TEST 6: Doesn't fail with empty 'X-ApiDocs-Query' header
@@ -158,6 +162,7 @@ success!
 --- error_code: 200
 
 
+
 === TEST 7: Allows underscores in headers
 Request headers with underscores are not dropped
 --- request
@@ -176,6 +181,7 @@ location /t {
 --- response_body
 abc123
 --- error_code: 200
+
 
 
 === TEST 8: Drop the original query parameters
