@@ -21,6 +21,14 @@ dependencies:
 cpan:
 	cpanm --notest --installdeps ./
 
+dev: SHELL ?= bash
+dev:
+	exec docker run -it --rm \
+		-v $(PWD):/opt/app-root/src \
+		-v $(PWD)/docker/lua_modules:/opt/app-root/src/lua_modules \
+		-v $(PWD)/docker/perl5:/opt/app-root/src/perl5 \
+		$(BUILDER_IMAGE) $(SHELL)
+
 $(JUNIT_OUTPUT_DIR):
 	mkdir -p $@
 
