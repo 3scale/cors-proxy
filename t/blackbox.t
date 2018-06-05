@@ -105,6 +105,8 @@ RESPONSE
 --- no_error_log
 [error]
 
+
+
 === TEST 4: doesn't double-encode the upstream path with special characters
 Proxies to the exact value of the upstream path.
 --- request

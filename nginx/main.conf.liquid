@@ -29,15 +29,16 @@ http {
   lua_package_cpath "{{ lua_cpath }};;";
 
   init_by_lua_block {
+    {% for env in env -%}
+      {%- if env.name %}
+      require('resty.env').set([[{{ env.name }}]], [[{{ env.value }}]]);
+      {%- endif -%}
+    {%- endfor %}
     require('cors-proxy'):init()
   }
 
   init_worker_by_lua_block {
     -- code to be executed after forking workers
-  }
-
-  log_by_lua_block {
-    require('cors-proxy'):log()
   }
 
   upstream proxy {
@@ -53,6 +54,10 @@ http {
 
     set_by_lua_block $proxy_scheme { return ngx.var.scheme }
     set $proxy_path '';
+
+    log_by_lua_block {
+      require('cors-proxy'):log()
+    }
 
     location / {
 
