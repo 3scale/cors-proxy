@@ -1,2 +1,6 @@
 lua_modules
 t/servroot*
+docker/*
+.cpanm
+.cache
+.bash_history
