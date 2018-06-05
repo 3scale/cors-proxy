@@ -121,7 +121,7 @@ function _M:rewrite()
       port = url[5] or resty_url.default_port(url[1]),
       host = url[4],
       path = ngx.var.http_x_apidocs_path or ngx.var.uri,
-      args = ngx.var.http_x_apidocs_query or ngx.var.args or '',
+      args = ngx.var.http_x_apidocs_query or '',
       method = METHODS[ngx.var.http_x_apidocs_method],
       debug = ngx.var.http_x_apidocs_debug
     }

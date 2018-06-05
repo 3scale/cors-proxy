@@ -18,6 +18,11 @@ Build process uses s2i to package docker image.
 s2i build . quay.io/3scale/s2i-openresty-centos7:1.11.2.5-1-rover2  cors-proxy-app
 ```
 
+Run the container:
+```shell
+docker run --rm --name corsproxy -p 8080:8080 cors-proxy-app
+```
+
 You can deploy app to OpenShift by running:
 
 ```shell
