@@ -104,6 +104,12 @@ http {
       }
     }
 
+    location = /healthz {
+			content_by_lua_block {
+        print(ngx.OK)
+			}
+		}
+
     location /nginx_status {
       internal;
       access_log off;
