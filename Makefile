@@ -24,8 +24,11 @@ cpan:
 start: ## Start cors-proxy from build Docker image
 	docker run -p 8080:8080 --rm $(IMAGE_NAME)
 
-test: build-$(BUILD_TYPE)
-	docker run --rm $(IMAGE_NAME) sh -c 'exec $$([[ -f /tmp/scripts/run ]] && echo /tmp/scripts/run || echo /opt/app-root/scripts/run) --daemon'
+# test: build-$(BUILD_TYPE)
+test:
+	docker run --rm \
+		--mount type=tmpfs,destination=/var/lib/nginx,tmpfs-mode=1770 \
+		$(IMAGE_NAME) sh -c 'exec $$([[ -f /tmp/scripts/run ]] && echo /tmp/scripts/run || echo /opt/app-root/scripts/run) --daemon'
 
 
 $(JUNIT_OUTPUT_DIR):
