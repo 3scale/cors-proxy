@@ -1,21 +1,38 @@
-version: 2
+version: 2.1
+
 jobs:
-  runtime:
+  release-runtime:
     machine: true
     environment:
       S2I_VERSION: "1.1.7-226afa1"
+      DOCKER_REGISTRY: "quay.io"
     steps:
       - checkout
       - run: .circleci/install-s2i.sh ~/bin
       - run: make test BUILD_TYPE=runtime
-  builder:
+      - deploy:
+          name: Push runtime image
+          command: |
+            if [ -n "${CIRCLE_TAG}" ] || [ -n "${CIRCLE_BRANCH}" ]; then
+              docker login -u="${DOCKER_USERNAME}" -p "${DOCKER_PASSWORD}" "${DOCKER_REGISTRY}"
+              make push RELEASE=${CIRCLE_TAG:-${CIRCLE_BRANCH}}
+            fi
+  release-builder:
     machine: true
     environment:
       S2I_VERSION: "1.1.7-226afa1"
+      DOCKER_REGISTRY: "quay.io"
     steps:
       - checkout
       - run: .circleci/install-s2i.sh ~/bin
       - run: make test BUILD_TYPE=builder
+      - deploy:
+          name: Push builder image
+          command: |
+            if [ -n "${CIRCLE_TAG}" ] || [ -n "${CIRCLE_BRANCH}" ]; then
+              docker login -u="${DOCKER_USERNAME}" -p "${DOCKER_PASSWORD}" "${DOCKER_REGISTRY}"
+              make push RELEASE=${CIRCLE_TAG:-${CIRCLE_BRANCH}}-builder
+            fi
   test:
     docker:
       - image: quay.io/3scale/s2i-openresty-centos7:1.17.5.1-0-centos8
@@ -25,9 +42,9 @@ jobs:
           DATABASE_URL: mysql://root@localhost:3306/circle_test
       - image: mysql:5.6
         environment:
-          - MYSQL_ROOT_PASSWORD=
-          - MYSQL_DATABASE=circle_test
-          - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+          MYSQL_ROOT_PASSWORD: ""
+          MYSQL_DATABASE: "circle_test"
+          MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
     working_directory: /opt/app-root/cors-proxy
     steps:
       - checkout
@@ -47,6 +64,7 @@ jobs:
             - cors-proxy-cpanm-{{ arch }}-{{ checksum "cpanfile" }}
             - cors-proxy-cpanm-{{ arch }}-{{ .Branch }}
             - cors-proxy-cpanm-{{ arch }}-master
+      - run: /usr/libexec/s2i/entrypoint sh -c "rover exec busted"
       - run:
           command: /usr/libexec/s2i/entrypoint make prove
           environment:
@@ -62,10 +80,27 @@ jobs:
       - store_artifacts:
           path: tmp
           destination: tmp
+
 workflows:
-  version: 2
   build_and_test:
     jobs:
-      - builder
-      - runtime
-      - test
+      - test:
+          filters: # required since `release-*` has tag filters AND requires `test`
+            tags:
+              only: /.*/
+      - release-builder:
+          requires:
+            - test
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+      - release-runtime:
+          requires:
+            - test
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/

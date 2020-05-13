@@ -3,6 +3,7 @@ JUNIT_OUTPUT_DIR = $(dir $(JUNIT_OUTPUT_FILE))
 BUILDER_IMAGE ?= quay.io/3scale/s2i-openresty-centos7:1.17.5.1-0-centos8
 RUNTIME_IMAGE ?= $(BUILDER_IMAGE)-runtime
 IMAGE_NAME ?= cors-proxy-candidate
+REMOTE_IMAGE_NAME ?= quay.io/3scale/cors-proxy:$(RELEASE)
 
 .DEFAULT_GOAL := help
 
@@ -14,6 +15,10 @@ build-builder: ## Build Docker image with all the development tools
 
 build-runtime: ## Build Docker image for runtime only
 	s2i build . $(BUILDER_IMAGE) $(IMAGE_NAME) --runtime-image=$(RUNTIME_IMAGE)
+
+push: ## Push image to the registry
+	docker tag $(IMAGE_NAME) $(REMOTE_IMAGE_NAME)
+	docker push $(REMOTE_IMAGE_NAME)
 
 dependencies:
 	rover install
