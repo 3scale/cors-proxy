@@ -1,6 +1,11 @@
 luarocks {
-  module { 'apicast-cli', '== scm-1' }, 
-  module { 'luarocks' },
-  module { 'nginx-lua-prometheus'},
-  rockspec 'cors-proxy-scm-1.rockspec',
+  group 'production' {
+    module { 'apicast-cli', '== scm-1' },
+    module { 'luarocks' },
+    module { 'nginx-lua-prometheus'},
+    rockspec 'cors-proxy-scm-1.rockspec',
+  }
+  group 'test' {
+    module { 'busted' },
+  }
 }
