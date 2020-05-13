@@ -21,10 +21,10 @@ http {
 
   underscores_in_headers on;
 
-  proxy_temp_path /var/lib/nginx/proxy_temp;
-  fastcgi_temp_path /var/lib/nginx/fastcgi_temp;
-  uwsgi_temp_path /var/lib/nginx/uwsgi_temp_path;
-  scgi_temp_path /var/lib/nginx/scgi_temp_path;
+  proxy_temp_path /tmp/proxy_temp;
+  fastcgi_temp_path /tmp/fastcgi_temp;
+  uwsgi_temp_path /tmp/uwsgi_temp_path;
+  scgi_temp_path /tmp/scgi_temp_path;
 
   lua_shared_dict whitelist 10m;
   lua_shared_dict prometheus_metrics 10M;

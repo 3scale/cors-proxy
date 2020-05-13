@@ -24,10 +24,8 @@ cpan:
 start: ## Start cors-proxy from build Docker image
 	docker run -p 8080:8080 --rm $(IMAGE_NAME)
 
-# test: build-$(BUILD_TYPE)
-test:
+test: build-$(BUILD_TYPE)
 	docker run --rm \
-		--mount type=tmpfs,destination=/var/lib/nginx,tmpfs-mode=1770 \
 		$(IMAGE_NAME) sh -c 'exec $$([[ -f /tmp/scripts/run ]] && echo /tmp/scripts/run || echo /opt/app-root/scripts/run) --daemon'
 
 
@@ -48,7 +46,6 @@ DOCKER_PROVE_CMD ?= mkdir -p /tmp/junit && /usr/libexec/s2i/entrypoint sh -c 'ro
 docker-prove: ## Run Test::Nginx in the $(BUILDER_IMAGE) image
 	docker run --rm -it -u $(shell id -u)  \
 		--mount type=bind,source=$$(pwd),target=/opt/app-root/src \
-		--mount type=tmpfs,destination=/var/lib/nginx,tmpfs-mode=1770 \
 		-eJUNIT_OUTPUT_FILE=/tmp/junit/prove.xml \
 		$(BUILDER_IMAGE)  $(MAKE) docker-exec CMD="$(DOCKER_PROVE_CMD)"
 
@@ -56,14 +53,12 @@ DOCKER_BUSTED_CMD := busted
 docker-busted: ## Run lua tests in the $(BUILDER_IMAGE) image
 	docker run --rm -it -u $(shell id -u)  \
 		--mount type=bind,source=$$(pwd),target=/opt/app-root/src \
-		--mount type=tmpfs,destination=/var/lib/nginx,tmpfs-mode=1770 \
 		$(BUILDER_IMAGE)  $(MAKE) docker-exec CMD="$(DOCKER_BUSTED_CMD)"
 
 DOCKER_SHELL_CMD := bash
 docker-shell: ## Run lua tests in the $(BUILDER_IMAGE) image
 	docker run --rm -it -u $(shell id -u)  \
 		--mount type=bind,source=$$(pwd),target=/opt/app-root/src \
-		--mount type=tmpfs,destination=/var/lib/nginx,tmpfs-mode=1770 \
 		$(BUILDER_IMAGE)  $(MAKE) docker-exec CMD="$(DOCKER_SHELL_CMD)"
 
 docker-exec: ## target to execute commands inside the $(BUILDER_IMAGE), mainly to execute tests both locally and in the CI
