@@ -1,6 +1,6 @@
 JUNIT_OUTPUT_DIR = $(dir $(JUNIT_OUTPUT_FILE))
 
-BUILDER_IMAGE ?= quay.io/3scale/s2i-openresty-centos7:1.13.6.1-rover5
+BUILDER_IMAGE ?= quay.io/3scale/s2i-openresty-centos7:1.17.5.1-0-centos8
 RUNTIME_IMAGE ?= $(BUILDER_IMAGE)-runtime
 IMAGE_NAME ?= cors-proxy-candidate
 
