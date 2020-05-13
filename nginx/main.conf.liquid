@@ -17,8 +17,14 @@ events {
 }
 
 http {
+  server_tokens off;
 
   underscores_in_headers on;
+
+  proxy_temp_path /var/lib/nginx/proxy_temp;
+  fastcgi_temp_path /var/lib/nginx/fastcgi_temp;
+  uwsgi_temp_path /var/lib/nginx/uwsgi_temp_path;
+  scgi_temp_path /var/lib/nginx/scgi_temp_path;
 
   lua_shared_dict whitelist 10m;
   lua_shared_dict prometheus_metrics 10M;
@@ -64,7 +70,7 @@ http {
       rewrite_by_lua_block {
         require('cors-proxy'):rewrite()
       }
-      
+
       access_by_lua_block {
         require('cors-proxy'):access()
       }
